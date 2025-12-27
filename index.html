@@ -194,6 +194,38 @@
         transform-origin: center center;
         transition: transform 0.2s;
     }
+	/* Summary Panel Styles */
+    #summary-panel {
+        margin-top: auto; /* Pushes to bottom if flex container */
+        padding-top: 20px;
+        border-top: 2px dashed #ccc;
+    }
+    #summary-panel h3 {
+        font-size: 14px;
+        margin: 0 0 15px 0;
+        text-transform: uppercase;
+        color: #333;
+    }
+    .sum-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        margin-bottom: 8px;
+        color: #555;
+    }
+    .sum-row strong { color: #000; }
+    .sum-divider {
+        height: 1px;
+        background: #eee;
+        margin: 10px 0;
+    }
+    .sum-small {
+        font-size: 10px;
+        color: #999;
+        margin-top: 10px;
+        text-align: right;
+        font-style: italic;
+    }
 </style>
 </head>
 <body>
@@ -261,6 +293,31 @@
         <label><input type="radio" name="accent" value="accent-purple"> Referee Purple</label>
     </div>
 
+	<div id="summary-panel">
+		<h3>Specification Summary</h3>
+		
+		<div class="sum-row">
+			<span>Mat Width (Top/Bot):</span>
+			<strong><span id="sum-mat-v">0.0</span> cm</strong>
+		</div>
+		<div class="sum-row">
+			<span>Mat Width (L/R):</span>
+			<strong><span id="sum-mat-h">0.0</span> cm</strong>
+		</div>
+		<div class="sum-divider"></div>
+		<div class="sum-row">
+			<span>Total Frame Height:</span>
+			<strong><span id="sum-frame-h">0.0</span> cm</strong>
+		</div>
+		<div class="sum-row">
+			<span>Total Frame Width:</span>
+			<strong><span id="sum-frame-w">0.0</span> cm</strong>
+		</div>
+		
+		<div class="sum-small">
+			*Based on Banzuke size 44x58cm
+		</div>
+	</div>
 
 </div>
 
@@ -314,36 +371,71 @@
     });
 	
     function updateVisuals() {
-        // 1. Update Classes
+        // 1. Get Values
         const sizeVal = document.querySelector('input[name="size"]:checked').value;
         const styleVal = document.querySelector('input[name="style"]:checked').value;
         const matVal = document.querySelector('input[name="mat"]:checked').value;
         const accentVal = document.querySelector('input[name="accent"]:checked').value;
 
+        // 2. Update Classes
         frame.className = `frame-container ${sizeVal} ${styleVal} ${matVal}`;
         inner.className = `inner-mat ${accentVal}`;
 
-        // 2. Toggle Custom Controls
+        // 3. Toggle Custom Controls
         if (sizeVal === 'size-custom') {
             customDimsBox.style.display = 'block';
         } else {
             customDimsBox.style.display = 'none';
         }
 
-        // 3. Update Variables & Text
-        // Logic: 10px = 1cm
-        
-        const thicknessCm = (thickSlider.value / 10).toFixed(1);
+        // 4. Update CSS Variables & Slider Labels (Visuals)
+        const thicknessCm = (thickSlider.value / 10);
         root.style.setProperty('--f-thick', thickSlider.value + 'px');
-        thickVal.textContent = thicknessCm + ' cm';
+        thickVal.textContent = thicknessCm.toFixed(1) + ' cm';
 
-        const padVCm = (padVSlider.value / 10).toFixed(1);
+        const customPadVCm = (padVSlider.value / 10);
         root.style.setProperty('--c-pad-v', padVSlider.value + 'px');
-        padVVal.textContent = padVCm + ' cm';
+        padVVal.textContent = customPadVCm.toFixed(1) + ' cm';
 
-        const padHCm = (padHSlider.value / 10).toFixed(1);
+        const customPadHCm = (padHSlider.value / 10);
         root.style.setProperty('--c-pad-h', padHSlider.value + 'px');
-        padHVal.textContent = padHCm + ' cm';
+        padHVal.textContent = customPadHCm.toFixed(1) + ' cm';
+
+        // 5. CALCULATE SUMMARY DIMENSIONS
+        // Banzuke Size is fixed: 44cm x 58cm
+        const paperW = 44;
+        const paperH = 58;
+        
+        let matV_cm, matH_cm, glassW, glassH;
+
+        if (sizeVal === 'size-custom') {
+            matV_cm = customPadVCm;
+            matH_cm = customPadHCm;
+            glassW = paperW + (matH_cm * 2);
+            glassH = paperH + (matV_cm * 2);
+        } else if (sizeVal === 'size-5070') {
+            // Standard 50x70 Frame
+            glassW = 50;
+            glassH = 70;
+            matH_cm = (glassW - paperW) / 2; // (50-44)/2 = 3.0
+            matV_cm = (glassH - paperH) / 2; // (70-58)/2 = 6.0
+        } else if (sizeVal === 'size-a1') {
+            // Standard A1 Frame (59.4 x 84.1)
+            glassW = 59.4;
+            glassH = 84.1;
+            matH_cm = (glassW - paperW) / 2; // 7.7
+            matV_cm = (glassH - paperH) / 2; // 13.05
+        }
+
+        // Total Outer Frame Size = Glass Size + (Frame Thickness * 2)
+        const totalOuterW = glassW + (thicknessCm * 2);
+        const totalOuterH = glassH + (thicknessCm * 2);
+
+        // Update Summary Text
+        document.getElementById('sum-mat-v').textContent = matV_cm.toFixed(1);
+        document.getElementById('sum-mat-h').textContent = matH_cm.toFixed(1);
+        document.getElementById('sum-frame-w').textContent = totalOuterW.toFixed(1);
+        document.getElementById('sum-frame-h').textContent = totalOuterH.toFixed(1);
     }
 
     // Event Listeners
