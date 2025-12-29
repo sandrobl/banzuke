@@ -236,7 +236,7 @@
 }
 
 /* Landscape mobile */
-@media screen and (max-width: 900px) and (orientation: landscape) {
+@media screen and (max-width: 900px) {
     #scale-container {
         transform: scale(0.4);
         transform-origin: center;
