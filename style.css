@@ -235,15 +235,13 @@
 
 }
 
-@media screen and (orientation: landscape) {
-        /* Zoom */
+/* Landscape mobile */
+@media screen and (max-width: 900px) and (orientation: landscape) {
     #scale-container {
         transform: scale(0.4);
         transform-origin: center;
     }
-
     .controls {
         width: 150px;
     }
-
 }
