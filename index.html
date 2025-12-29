@@ -4,229 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Banzuke Framing Visualizer v3</title>
-<style>
-    :root {
-        /* Banzuke Dimensions (approx ratio) */
-        --banzuke-w: 440px;
-        --banzuke-h: 580px;
-        
-        /* Colors */
-        --paper-color: #f4f1ea;
-        --ink-color: #1a1a1a;
-        --bg-wall: #e0e0e0;
-        
-        /* Dynamic Variables controlled by JS */
-        --f-thick: 15px;      
-        --c-pad-v: 30px;      
-        --c-pad-h: 30px;      
-        
-        /* Material Textures */
-        --frame-black: #1a1a1a;
-        --frame-wood: #5c4033; 
-        --frame-light-wood: #dbb086;
-        
-        /* Mat Colors */
-        --mat-white: #ffffff;
-        --mat-cream: #fdfbf7;
-        --mat-rice: #efebe0;
-        --mat-accent-red: #bf2121;
-        --mat-accent-purple: #522d5b;
-    }
-
-    body {
-        font-family: 'Helvetica Neue', Arial, sans-serif;
-        background-color: var(--bg-wall);
-        margin: 0;
-        display: flex;
-        height: 100vh;
-        overflow: hidden;
-    }
-
-    /* Controls Sidebar */
-    .controls {
-        width: 30%;
-		min-width: 300px;
-        background: #fff;
-        padding: 20px;
-        border-right: 1px solid #ccc;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        overflow-y: auto;
-        box-shadow: 2px 0 10px rgba(0,0,0,0.05);
-        z-index: 10;
-    }
-
-    h2 { font-size: 14px; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px; color: #555; border-bottom: 2px solid #eee; padding-bottom: 5px; }
-    label { display: flex; align-items: center; margin-bottom: 8px; font-size: 14px; cursor: pointer; }
-    input[type="radio"] { margin-right: 10px; }
-    
-    /* Sliders */
-    .slider-group { margin-bottom: 15px; }
-    .slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-    .slider-label { font-size: 12px; color: #666; font-weight: bold; }
-    .slider-value { font-size: 12px; color: #000; font-family: monospace; background: #eee; padding: 2px 6px; border-radius: 4px; }
-    input[type="range"] { width: 100%; cursor: pointer; }
-
-    /* Conditional Section */
-    #custom-dims {
-        background: #f9f9f9;
-        padding: 10px;
-        border-radius: 4px;
-        border: 1px solid #ddd;
-        display: block; 
-    }
-
-    /* Preview Area */
-    .preview-stage {
-        flex-grow: 1;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-image: radial-gradient(#ccc 2px, transparent 2px);
-        background-size: 20px 20px;
-        background-color: #e0e0e0;
-        position: relative;
-    }
-
-    /* The Frame Structure */
-    .frame-container {
-        box-shadow: 15px 15px 40px rgba(0,0,0,0.4);
-        transition: padding 0.1s ease, background-color 0.3s ease;
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        box-sizing: border-box;
-        border-style: solid; 
-        border-width: var(--f-thick);
-    }
-
-    /* Inner Accent Mat (Optional) */
-    .inner-mat {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        height: 100%;
-        transition: all 0.3s ease;
-    }
-
-/* The Banzuke Object - Updated */
-    .banzuke {
-        /* STRICT DIMENSIONS */
-        width: var(--banzuke-w) !important;
-        height: var(--banzuke-h) !important;
-        min-width: var(--banzuke-w);
-        min-height: var(--banzuke-h);
-        
-        background-color: var(--paper-color);
-        position: relative;
-        overflow: hidden;
-        flex-shrink: 0;
-        box-shadow: inset 0 0 15px rgba(0,0,0,0.15); 
-        
-        /* IMAGE HANDLING: Forces image to fit the div, not vice versa */
-        background-size: 100% 100%;
-        background-position: center;
-        background-repeat: no-repeat;
-    }
-
-    /* Fake Text Lines (Only visible if NO image class is present) */
-    .banzuke:not(.has-image)::before {
-        content: " ";
-        display: block;
-        position: absolute;
-        top: 4%; left: 4%; right: 4%; bottom: 4%;
-        background-image: 
-            linear-gradient(90deg, 
-                var(--ink-color) 1px, transparent 1px, transparent 5px,
-                var(--ink-color) 2px, transparent 2px, transparent 15px
-            );
-        background-size: 20px 100%;
-        opacity: 0.7;
-    }
-    
-    .banzuke:not(.has-image)::after {
-        content: "BANZUKE";
-        position: absolute;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%) rotate(90deg);
-        font-weight: 900;
-        font-size: 60px;
-        color: rgba(0,0,0,0.08);
-        letter-spacing: 15px;
-    }
-
-    /* Size Logic */
-    .size-custom {
-        padding: var(--c-pad-v) var(--c-pad-h);
-    }
-    
-    .size-5070 { padding: 60px 30px; } /* 6cm Top/Bot, 3cm L/R */
-    .size-a1 { padding: 130px 77px; } /* 13cm Top/Bot, 7.7cm L/R */
-
-    /* Frame Styles */
-    .style-black { border-color: var(--frame-black); }
-    .style-wood { border-color: var(--frame-wood); border-radius: 2px; }
-    .style-bamboo { 
-        border-color: var(--frame-light-wood); 
-        outline: 2px solid #bfa07a;
-        outline-offset: -2px;
-    }
-    
-    /* Mat Colors */
-    .mat-white { background-color: var(--mat-white); }
-    .mat-cream { background-color: var(--mat-cream); }
-    .mat-rice { 
-        background-color: var(--mat-rice); 
-        background-image: url("data:image/svg+xml,%3Csvg width='4' height='4' viewBox='0 0 4 4' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 3h1v1H1V3zm2-2h1v1H3V1z' fill='%23d0c8b0' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E");
-    }
-
-    /* Double Matting */
-    .accent-none .inner-mat { padding: 0; background: transparent; }
-    .accent-red .inner-mat { padding: 5px; background: var(--mat-accent-red); }
-    .accent-purple .inner-mat { padding: 5px; background: var(--mat-accent-purple); }
-
-    /* Zoom */
-    #scale-container {
-        transform: scale(0.6);
-        transform-origin: center center;
-        transition: transform 0.2s;
-    }
-	/* Summary Panel Styles */
-    #summary-panel {
-        margin-top: auto; /* Pushes to bottom if flex container */
-        padding-top: 20px;
-        border-top: 2px dashed #ccc;
-    }
-    #summary-panel h3 {
-        font-size: 14px;
-        margin: 0 0 15px 0;
-        text-transform: uppercase;
-        color: #333;
-    }
-    .sum-row {
-        display: flex;
-        justify-content: space-between;
-        font-size: 13px;
-        margin-bottom: 8px;
-        color: #555;
-    }
-    .sum-row strong { color: #000; }
-    .sum-divider {
-        height: 1px;
-        background: #eee;
-        margin: 10px 0;
-    }
-    .sum-small {
-        font-size: 10px;
-        color: #999;
-        margin-top: 10px;
-        text-align: right;
-        font-style: italic;
-    }
-</style>
+<link rel="stylesheet" href="./style.css">
 </head>
 <body>
 
@@ -234,7 +12,28 @@
     	
 	<div>
         <h2>0. Upload Image</h2>
-        <input type="file" id="imgUpload" accept="image/*" style="font-size: 12px;">
+        <input type="file" id="imgUpload" accept="image/*" style="width:100%;font-size: 12px;">
+    </div>
+    <div>
+        <h2>1. Picture Size</h2>
+        <label><input type="radio" name="picSize" value="size-44x58" checked> Banzuke Standard (44cm x 58cm)</label>
+        <label><input type="radio" name="picSize" value="pic-size-custom"> Custom Size</label>
+        <div id="custom-pic-dims" style="visibility: collapse; display:none; margin-top: 10px;">
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span class="slider-label">Picture Height</span>
+                    <span class="slider-value" id="picHVal">58.0 cm</span>
+                </div>
+                <input type="range" id="picHSlider" min="10" max="200" value="58">
+            </div>
+            <div class="slider-group">
+                <div class="slider-header">
+                    <span class="slider-label">Picture Width</span>
+                    <span class="slider-value" id="picWVal">44.0 cm</span>
+                </div>
+                <input type="range" id="picWSlider" min="10" max="150" value="44">
+            </div>
+        </div>
     </div>
     <div>
         <h2>1. Frame Thickness</h2>
@@ -246,9 +45,8 @@
             <input type="range" id="thickSlider" min="5" max="60" value="15">
         </div>
     </div>
-
     <div>
-        <h2>2. Mat Dimensions</h2>
+        <h2>2. Passepartout / Mat Dimensions</h2>
         <label><input type="radio" name="size" value="size-custom" checked> Custom / Close Fit</label>
         
         <div id="custom-dims">
@@ -277,6 +75,8 @@
         <label><input type="radio" name="style" value="style-black" checked> Minimal Matte Black</label>
         <label><input type="radio" name="style" value="style-wood"> Dark Walnut Wood</label>
         <label><input type="radio" name="style" value="style-bamboo"> Light Oak / Bamboo</label>
+        <label><input type="radio" name="style" value="style-custom"> Custom</label>
+        <label><input type="color" name="style" style="visibility: hidden; display: none;" id="customColorPicker" disabled></label>
     </div>
 
     <div>
@@ -284,13 +84,6 @@
         <label><input type="radio" name="mat" value="mat-white"> Stark White</label>
         <label><input type="radio" name="mat" value="mat-cream" checked> Soft Cream</label>
         <label><input type="radio" name="mat" value="mat-rice"> Textured Rice Paper</label>
-    </div>
-
-    <div>
-        <h2>5. Double Mat Accent</h2>
-        <label><input type="radio" name="accent" value="accent-none" checked> None</label>
-        <label><input type="radio" name="accent" value="accent-red"> Vermilion Red</label>
-        <label><input type="radio" name="accent" value="accent-purple"> Referee Purple</label>
     </div>
 
 	<div id="summary-panel">
@@ -324,132 +117,14 @@
 <div class="preview-stage">
     <div id="scale-container">
         <div id="frame" class="frame-container size-custom style-black mat-cream">
-            <div id="inner" class="inner-mat accent-none">
+            <div id="inner" class="inner-mat">
                 <div onclick="selectImage()" class="banzuke"></div>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-    const frame = document.getElementById('frame');
-    const inner = document.getElementById('inner');
-    const root = document.documentElement;
-    
-    // Inputs
-    const thickSlider = document.getElementById('thickSlider');
-    const padVSlider = document.getElementById('padVSlider');
-    const padHSlider = document.getElementById('padHSlider');
-    const customDimsBox = document.getElementById('custom-dims');
-    
-    // Value Displays
-    const thickVal = document.getElementById('thickVal');
-    const padVVal = document.getElementById('padVVal');
-    const padHVal = document.getElementById('padHVal');
-
-    const sizeRadios = document.querySelectorAll('input[name="size"]');
-    const styleRadios = document.querySelectorAll('input[name="style"]');
-    const matRadios = document.querySelectorAll('input[name="mat"]');
-    const accentRadios = document.querySelectorAll('input[name="accent"]');
-
-// Image Upload Logic
-    const imgUpload = document.getElementById('imgUpload');
-    const banzukeDiv = document.querySelector('.banzuke');
-
-    imgUpload.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                // Apply image as background so div dimensions are strictly respected
-                banzukeDiv.style.backgroundImage = `url(${event.target.result})`;
-                // Add class to hide the CSS fake text
-                banzukeDiv.classList.add('has-image');
-            }
-            reader.readAsDataURL(file);
-        }
-    });
-	
-    function updateVisuals() {
-        // 1. Get Values
-        const sizeVal = document.querySelector('input[name="size"]:checked').value;
-        const styleVal = document.querySelector('input[name="style"]:checked').value;
-        const matVal = document.querySelector('input[name="mat"]:checked').value;
-        const accentVal = document.querySelector('input[name="accent"]:checked').value;
-
-        // 2. Update Classes
-        frame.className = `frame-container ${sizeVal} ${styleVal} ${matVal}`;
-        inner.className = `inner-mat ${accentVal}`;
-
-        // 3. Toggle Custom Controls
-        if (sizeVal === 'size-custom') {
-            customDimsBox.style.display = 'block';
-        } else {
-            customDimsBox.style.display = 'none';
-        }
-
-        // 4. Update CSS Variables & Slider Labels (Visuals)
-        const thicknessCm = (thickSlider.value / 10);
-        root.style.setProperty('--f-thick', thickSlider.value + 'px');
-        thickVal.textContent = thicknessCm.toFixed(1) + ' cm';
-
-        const customPadVCm = (padVSlider.value / 10);
-        root.style.setProperty('--c-pad-v', padVSlider.value + 'px');
-        padVVal.textContent = customPadVCm.toFixed(1) + ' cm';
-
-        const customPadHCm = (padHSlider.value / 10);
-        root.style.setProperty('--c-pad-h', padHSlider.value + 'px');
-        padHVal.textContent = customPadHCm.toFixed(1) + ' cm';
-
-        // 5. CALCULATE SUMMARY DIMENSIONS
-        // Banzuke Size is fixed: 44cm x 58cm
-        const paperW = 44;
-        const paperH = 58;
-        
-        let matV_cm, matH_cm, glassW, glassH;
-
-        if (sizeVal === 'size-custom') {
-            matV_cm = customPadVCm;
-            matH_cm = customPadHCm;
-            glassW = paperW + (matH_cm * 2);
-            glassH = paperH + (matV_cm * 2);
-        } else if (sizeVal === 'size-5070') {
-            // Standard 50x70 Frame
-            glassW = 50;
-            glassH = 70;
-            matH_cm = (glassW - paperW) / 2; // (50-44)/2 = 3.0
-            matV_cm = (glassH - paperH) / 2; // (70-58)/2 = 6.0
-        } else if (sizeVal === 'size-a1') {
-            // Standard A1 Frame (59.4 x 84.1)
-            glassW = 59.4;
-            glassH = 84.1;
-            matH_cm = (glassW - paperW) / 2; // 7.7
-            matV_cm = (glassH - paperH) / 2; // 13.05
-        }
-
-        // Total Outer Frame Size = Glass Size + (Frame Thickness * 2)
-        const totalOuterW = glassW + (thicknessCm * 2);
-        const totalOuterH = glassH + (thicknessCm * 2);
-
-        // Update Summary Text
-        document.getElementById('sum-mat-v').textContent = matV_cm.toFixed(1);
-        document.getElementById('sum-mat-h').textContent = matH_cm.toFixed(1);
-        document.getElementById('sum-frame-w').textContent = totalOuterW.toFixed(1);
-        document.getElementById('sum-frame-h').textContent = totalOuterH.toFixed(1);
-    }
-
-    // Event Listeners
-    thickSlider.addEventListener('input', updateVisuals);
-    padVSlider.addEventListener('input', updateVisuals);
-    padHSlider.addEventListener('input', updateVisuals);
-    
-    [...sizeRadios, ...styleRadios, ...matRadios, ...accentRadios].forEach(input => {
-        input.addEventListener('change', updateVisuals);
-    });
-
-    // Initialize
-    updateVisuals();
-</script>
+<script src="script.js"></script>
 
 </body>
 </html>
