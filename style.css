@@ -14,9 +14,29 @@
         --c-pad-h: 30px;      
         
         /* Material Textures */
+        --frame-white: #f5f5f0;
+        --frame-lime: #a8a08a;
+        --frame-natural-white: #e8e4d9;
+        --frame-grey: #7a7a7a;
+        --frame-maple: #e5c9a0;
+        --frame-cacao: #9c7d63;
+        --frame-oak: #c4a374;
+        --frame-coffee: #5d4e43;
+        --frame-cherry: #b87860;
+        --frame-wenge: #3d3735;
+        --frame-bamboo: #d4a574;
+        --frame-anthracite: #2e3234;
+        --frame-teak: #a17446;
         --frame-black: #1a1a1a;
-        --frame-wood: #5c4033; 
-        --frame-light-wood: #dbb086;
+        --frame-snow-white: #f8f8f8;
+        --frame-nut-brown: #3a3a3a;
+        --frame-white-sand: #e5e5e5;
+        --frame-jet-black: #000000;
+        --frame-cement-grey: #b8b8b8;
+        --frame-silver-grey: #d0d0c8;
+        --frame-khaki: #a09888;
+        --frame-loam-brown: #7a7a7a;
+        --frame-dove-grey: #8a8a8a;
         --frame-custom: #111111;
         
         /* Mat Colors */
@@ -162,13 +182,29 @@
     .size-a1 { padding: 130px 77px; } /* 13cm Top/Bot, 7.7cm L/R */
 
     /* Frame Styles */
+    .style-white { border-color: var(--frame-white); }
+    .style-lime { border-color: var(--frame-lime); }
+    .style-natural-white { border-color: var(--frame-natural-white); }
+    .style-grey { border-color: var(--frame-grey); }
+    .style-maple { border-color: var(--frame-maple); }
+    .style-cacao { border-color: var(--frame-cacao); }
+    .style-oak { border-color: var(--frame-oak); }
+    .style-coffee { border-color: var(--frame-coffee); }
+    .style-cherry { border-color: var(--frame-cherry);}
+    .style-wenge { border-color: var(--frame-wenge); }
+    .style-bamboo { border-color: var(--frame-bamboo); }
+    .style-anthracite { border-color: var(--frame-anthracite); }
+    .style-teak { border-color: var(--frame-teak); }
     .style-black { border-color: var(--frame-black); }
-    .style-wood { border-color: var(--frame-wood); }
-    .style-bamboo { 
-        border-color: var(--frame-light-wood); 
-        outline: 2px solid #bfa07a;
-        outline-offset: -2px;
-    }
+    .style-snow-white { border-color: var(--frame-snow-white); }
+    .style-nut-brown { border-color: var(--frame-nut-brown); }
+    .style-white-sand { border-color: var(--frame-white-sand); }
+    .style-jet-black { border-color: var(--frame-jet-black); }
+    .style-cement-grey { border-color: var(--frame-cement-grey); }
+    .style-silver-grey { border-color: var(--frame-silver-grey); }
+    .style-khaki { border-color: var(--frame-khaki); }
+    .style-loam-brown { border-color: var(--frame-loam-brown); }
+    .style-dove-grey { border-color: var(--frame-dove-grey); }
     .style-custom { border-color: var(--frame-custom); }
     
     /* Mat Colors */
